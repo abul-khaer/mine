@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCog } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import type { User, Mine, PaginatedResponse } from '../../types';
@@ -55,7 +55,7 @@ export default function UserManagement() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">{t('users.name')}</th>
                 <th className="table-header">{t('users.email')}</th>
@@ -64,30 +64,45 @@ export default function UserManagement() {
                 <th className="table-header text-center">{t('common.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={6} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2 text-forest-mid/50">
+                    <div className="h-8 w-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+                    <span className="text-sm">{t('common.loading')}</span>
+                  </div>
+                </td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={6} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2 text-forest-mid/40">
+                    <UserCog size={32} />
+                    <span className="text-sm">{t('common.noData')}</span>
+                  </div>
+                </td></tr>
               ) : (
                 data?.data.map((user, idx) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell font-semibold text-gray-900">{user.name}</td>
-                    <td className="table-cell text-gray-600">{user.email}</td>
+                  <tr key={user.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs font-medium">{(page - 1) * 15 + idx + 1}</td>
+                    <td className="table-cell font-semibold text-forest-deep">{user.name}</td>
+                    <td className="table-cell text-forest-mid">{user.email}</td>
                     <td className="table-cell">
                       <span className="badge bg-primary-100 text-primary-700">
                         {t(`roles.${user.role}` as any)}
                       </span>
                     </td>
-                    <td className="table-cell text-gray-600">{user.mine?.name ?? '—'}</td>
                     <td className="table-cell">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => { setEditUser(user); setModalOpen(true); }} className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
-                          <Pencil size={15} />
+                      {user.mine?.name
+                        ? <span className="badge bg-earth-100 text-earth-700">{user.mine.name}</span>
+                        : <span className="text-forest-mid/40">—</span>
+                      }
+                    </td>
+                    <td className="table-cell">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button onClick={() => { setEditUser(user); setModalOpen(true); }} className="p-1.5 text-forest-mid hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                          <Pencil size={14} />
                         </button>
-                        <button onClick={() => setDeleteId(user.id)} className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                          <Trash2 size={15} />
+                        <button onClick={() => setDeleteId(user.id)} className="p-1.5 text-forest-mid hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>

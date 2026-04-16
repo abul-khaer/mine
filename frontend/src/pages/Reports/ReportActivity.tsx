@@ -16,9 +16,9 @@ interface ActivityRow {
 }
 
 const statusColor: Record<string, string> = {
-  planned:   'bg-blue-100 text-blue-700',
-  ongoing:   'bg-yellow-100 text-yellow-700',
-  completed: 'bg-green-100 text-green-700',
+  planned:   'bg-primary-100 text-primary-700',
+  ongoing:   'bg-earth-100 text-earth-700',
+  completed: 'bg-forest-dark/15 text-forest-dark',
 };
 
 export default function ReportActivity() {
@@ -87,7 +87,7 @@ export default function ReportActivity() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">Tambang</th>
                 <th className="table-header">Tanggal</th>
@@ -97,22 +97,24 @@ export default function ReportActivity() {
                 <th className="table-header">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={7} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={7} className="text-center py-10 text-forest-mid/40">{t('common.loading')}</td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={7} className="text-center py-10 text-forest-mid/40">{t('common.noData')}</td></tr>
               ) : (
                 data?.data.map((row, idx) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell">{row.mine_name}</td>
-                    <td className="table-cell">{row.date}</td>
-                    <td className="table-cell font-medium">{row.activity}</td>
-                    <td className="table-cell text-gray-600 max-w-xs truncate">{row.description}</td>
-                    <td className="table-cell">{row.pic}</td>
+                  <tr key={row.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs">{(page - 1) * 15 + idx + 1}</td>
                     <td className="table-cell">
-                      <span className={`badge ${statusColor[row.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                      <span className="badge bg-earth-100 text-earth-700">{row.mine_name}</span>
+                    </td>
+                    <td className="table-cell text-forest-mid">{row.date}</td>
+                    <td className="table-cell font-semibold text-forest-deep">{row.activity}</td>
+                    <td className="table-cell text-forest-mid/70 max-w-xs truncate">{row.description}</td>
+                    <td className="table-cell text-forest-mid">{row.pic}</td>
+                    <td className="table-cell">
+                      <span className={`badge ${statusColor[row.status] ?? 'bg-cream-200 text-forest-mid'}`}>
                         {row.status}
                       </span>
                     </td>

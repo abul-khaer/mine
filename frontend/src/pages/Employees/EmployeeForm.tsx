@@ -28,6 +28,8 @@ interface Props {
   onCancel: () => void;
 }
 
+const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5';
+
 export default function EmployeeForm({ employee, mines, onSuccess, onCancel }: Props) {
   const { t } = useTranslation();
   const isEdit = !!employee;
@@ -56,9 +58,8 @@ export default function EmployeeForm({ employee, mines, onSuccess, onCancel }: P
   return (
     <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Tambang */}
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.mine')}</label>
+          <label className={labelClass}>{t('employees.mine')}</label>
           <select {...register('mine_id')} className="input-field">
             <option value="">-- Pilih Tambang --</option>
             {mines.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -66,65 +67,57 @@ export default function EmployeeForm({ employee, mines, onSuccess, onCancel }: P
           {errors.mine_id && <p className="text-xs text-red-500 mt-1">{errors.mine_id.message}</p>}
         </div>
 
-        {/* NIK */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.nik')}</label>
+          <label className={labelClass}>{t('employees.nik')}</label>
           <input {...register('nik')} className="input-field" placeholder="EMP001" />
           {errors.nik && <p className="text-xs text-red-500 mt-1">{errors.nik.message}</p>}
         </div>
 
-        {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.name')}</label>
+          <label className={labelClass}>{t('employees.name')}</label>
           <input {...register('name')} className="input-field" placeholder="Nama lengkap" />
           {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
         </div>
 
-        {/* Position */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.position')}</label>
+          <label className={labelClass}>{t('employees.position')}</label>
           <input {...register('position')} className="input-field" placeholder="Engineer, Driver, ..." />
           {errors.position && <p className="text-xs text-red-500 mt-1">{errors.position.message}</p>}
         </div>
 
-        {/* Department */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.department')}</label>
+          <label className={labelClass}>{t('employees.department')}</label>
           <input {...register('department')} className="input-field" placeholder="Operasional, HR, ..." />
           {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department.message}</p>}
         </div>
 
-        {/* Hire Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.hireDate')}</label>
+          <label className={labelClass}>{t('employees.hireDate')}</label>
           <input {...register('hire_date')} type="date" className="input-field" />
           {errors.hire_date && <p className="text-xs text-red-500 mt-1">{errors.hire_date.message}</p>}
         </div>
 
-        {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('common.status')}</label>
+          <label className={labelClass}>{t('common.status')}</label>
           <select {...register('status')} className="input-field">
             <option value="active">{t('common.active')}</option>
             <option value="inactive">{t('common.inactive')}</option>
           </select>
         </div>
 
-        {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.phone')}</label>
+          <label className={labelClass}>{t('employees.phone')}</label>
           <input {...register('phone')} type="tel" className="input-field" placeholder="+62..." />
         </div>
 
-        {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('employees.email')}</label>
+          <label className={labelClass}>{t('employees.email')}</label>
           <input {...register('email')} type="email" className="input-field" placeholder="email@..." />
           {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
         </div>
       </div>
 
-      <div className="flex gap-3 justify-end pt-2">
+      <div className="flex gap-3 justify-end pt-2 border-t border-cream-200">
         <button type="button" onClick={onCancel} className="btn-secondary">{t('common.cancel')}</button>
         <button type="submit" disabled={mutation.isPending} className="btn-primary">
           {mutation.isPending ? t('common.loading') : t('common.save')}

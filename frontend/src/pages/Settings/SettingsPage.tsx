@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Upload, Building2 } from 'lucide-react';
+import { Upload, Building2, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import type { CompanySettings } from '../../types';
 import PageHeader from '../../components/common/PageHeader';
 import { useCompanyStore } from '../../store/companyStore';
+
+const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -64,15 +66,18 @@ export default function SettingsPage() {
       <div className="max-w-2xl space-y-6">
         {/* Logo */}
         <div className="card">
-          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Building2 size={18} /> {t('settings.logo')}
-          </h2>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-8 w-8 bg-primary-100 rounded-xl flex items-center justify-center">
+              <Building2 size={16} className="text-primary-600" />
+            </div>
+            <h2 className="text-base font-bold text-forest-deep">{t('settings.logo')}</h2>
+          </div>
           <div className="flex items-center gap-5">
-            <div className="h-20 w-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+            <div className="h-24 w-24 rounded-2xl border-2 border-dashed border-cream-300 flex items-center justify-center overflow-hidden bg-cream-100">
               {company?.logo_url ? (
-                <img src={company.logo_url} alt="logo" className="h-full w-full object-contain p-1" />
+                <img src={company.logo_url} alt="logo" className="h-full w-full object-contain p-2" />
               ) : (
-                <Building2 size={28} className="text-gray-300" />
+                <Building2 size={32} className="text-forest-mid/30" />
               )}
             </div>
             <div>
@@ -84,7 +89,7 @@ export default function SettingsPage() {
                 <Upload size={15} />
                 {uploadMutation.isPending ? t('common.loading') : company?.logo_url ? t('settings.changeLogo') : t('settings.uploadLogo')}
               </button>
-              <p className="text-xs text-gray-400 mt-1">PNG, JPG maks 2MB</p>
+              <p className="text-xs text-forest-mid/50 mt-2">PNG, JPG maks 2MB</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             </div>
           </div>
@@ -92,36 +97,42 @@ export default function SettingsPage() {
 
         {/* Company info form */}
         <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} className="card space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 mb-2">{t('settings.company')}</h2>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-8 w-8 bg-earth-100 rounded-xl flex items-center justify-center">
+              <Building2 size={16} className="text-earth-600" />
+            </div>
+            <h2 className="text-base font-bold text-forest-deep">{t('settings.company')}</h2>
+          </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('settings.companyName')}</label>
+            <label className={labelClass}>{t('settings.companyName')}</label>
             <input {...register('company_name')} className="input-field" placeholder="PT. Tambang Nusantara" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('settings.address')}</label>
+            <label className={labelClass}>{t('settings.address')}</label>
             <textarea {...register('address')} rows={2} className="input-field" placeholder="Jl. Pertambangan No. 1, Jakarta" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('settings.phone')}</label>
+              <label className={labelClass}>{t('settings.phone')}</label>
               <input {...register('phone')} type="tel" className="input-field" placeholder="+62 21 1234 5678" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('settings.email')}</label>
+              <label className={labelClass}>{t('settings.email')}</label>
               <input {...register('email')} type="email" className="input-field" placeholder="info@perusahaan.com" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('settings.website')}</label>
+            <label className={labelClass}>{t('settings.website')}</label>
             <input {...register('website')} className="input-field" placeholder="https://perusahaan.com" />
           </div>
 
-          <div className="pt-2">
-            <button type="submit" disabled={saveMutation.isPending} className="btn-primary">
+          <div className="pt-2 border-t border-cream-200">
+            <button type="submit" disabled={saveMutation.isPending} className="btn-primary flex items-center gap-2">
+              <Save size={15} />
               {saveMutation.isPending ? t('common.loading') : t('common.save')}
             </button>
           </div>

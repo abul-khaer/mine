@@ -87,7 +87,7 @@ export default function ReportFinancial() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">Tambang</th>
                 <th className="table-header">Tanggal</th>
@@ -98,28 +98,30 @@ export default function ReportFinancial() {
                 <th className="table-header">Catatan</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.loading')}</td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.noData')}</td></tr>
               ) : (
                 data?.data.map((row, idx) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell">{row.mine_name}</td>
-                    <td className="table-cell">{row.date}</td>
+                  <tr key={row.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs">{(page - 1) * 15 + idx + 1}</td>
                     <td className="table-cell">
-                      <span className="badge bg-blue-100 text-blue-700">{row.category}</span>
+                      <span className="badge bg-earth-100 text-earth-700">{row.mine_name}</span>
                     </td>
-                    <td className="table-cell text-right text-green-700 font-medium">{fmt(row.income)}</td>
+                    <td className="table-cell text-forest-mid">{row.date}</td>
+                    <td className="table-cell">
+                      <span className="badge bg-primary-100 text-primary-700">{row.category}</span>
+                    </td>
+                    <td className="table-cell text-right text-primary-700 font-medium">{fmt(row.income)}</td>
                     <td className="table-cell text-right text-red-600 font-medium">{fmt(row.expense)}</td>
                     <td className="table-cell text-right font-bold">
-                      <span className={row.profit >= 0 ? 'text-green-700' : 'text-red-600'}>
+                      <span className={row.profit >= 0 ? 'text-primary-700' : 'text-red-600'}>
                         {fmt(row.profit)}
                       </span>
                     </td>
-                    <td className="table-cell text-gray-500 max-w-xs truncate">{row.notes || '—'}</td>
+                    <td className="table-cell text-forest-mid/60 max-w-xs truncate">{row.notes || '—'}</td>
                   </tr>
                 ))
               )}

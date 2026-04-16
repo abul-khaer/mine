@@ -59,7 +59,7 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
     placeholder?: string
   ) => (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5">{label}</label>
       <input
         {...register(key)}
         type={type}
@@ -82,7 +82,7 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
         {field('area', t('mines.area'), 'number', '1000')}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5">
           {t('mines.address')}
         </label>
         <textarea
@@ -100,7 +100,7 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
         {field('longitude', 'Longitude', 'number', '117.153')}
       </div>
 
-      <div className="flex gap-3 justify-end pt-2">
+      <div className="flex gap-3 justify-end pt-2 border-t border-cream-200">
         <button type="button" onClick={onCancel} className="btn-secondary">
           {t('common.cancel')}
         </button>
