@@ -12,6 +12,7 @@ import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { useCompanyStore } from '../../store/companyStore';
 import type { CompanySettings } from '../../types';
+import { assetUrl } from '../../utils/assetUrl';
 
 const schema = z.object({
   email: z.string().email(),
@@ -116,7 +117,7 @@ export default function LoginPage() {
           <div className="text-center mb-10">
             {company?.logo_url ? (
               <img
-                src={company.logo_url}
+                src={assetUrl(company.logo_url)}
                 alt="logo"
                 className="h-16 w-16 object-contain rounded-2xl mx-auto mb-4 ring-2 ring-white/20"
               />

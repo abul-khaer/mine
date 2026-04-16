@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
+import { useDocumentMeta } from './hooks/useDocumentMeta';
+import { useRoleAccessStore } from './store/roleAccessStore';
+import api from './services/api';
 
 // Layouts
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -20,6 +24,8 @@ import ReportIssue from './pages/Reports/ReportIssue';
 import SettingsPage from './pages/Settings/SettingsPage';
 import UserManagement from './pages/Users/UserManagement';
 import NotFound from './pages/NotFound';
+import MasterDataPage from './pages/MasterData/MasterDataPage';
+import RoleAccessPage from './pages/RoleAccess/RoleAccessPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -27,38 +33,58 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AppContent() {
+  useDocumentMeta();
+
+  const token = useAuthStore((s) => s.token);
+  const setFromApi = useRoleAccessStore((s) => s.setFromApi);
+
+  useEffect(() => {
+    if (!token) return;
+    api.get('/role-access')
+      .then((r) => setFromApi(r.data))
+      .catch(() => {}); // keep static fallback on error
+  }, [token, setFromApi]);
+
+  return (
+    <Routes>
+      {/* Public */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Protected */}
+      <Route
+        path="/app"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="mines" element={<MineList />} />
+        <Route path="employees" element={<EmployeeList />} />
+        <Route path="reports/employee" element={<ReportEmployee />} />
+        <Route path="reports/production" element={<ReportProduction />} />
+        <Route path="reports/financial" element={<ReportFinancial />} />
+        <Route path="reports/activity" element={<ReportActivity />} />
+        <Route path="reports/issue" element={<ReportIssue />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="master-data" element={<MasterDataPage />} />
+        <Route path="role-access" element={<RoleAccessPage />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-
-        {/* Protected */}
-        <Route
-          path="/app"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/app/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="mines" element={<MineList />} />
-          <Route path="employees" element={<EmployeeList />} />
-          <Route path="reports/employee" element={<ReportEmployee />} />
-          <Route path="reports/production" element={<ReportProduction />} />
-          <Route path="reports/financial" element={<ReportFinancial />} />
-          <Route path="reports/activity" element={<ReportActivity />} />
-          <Route path="reports/issue" element={<ReportIssue />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="users" element={<UserManagement />} />
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AppContent />
     </BrowserRouter>
   );
 }

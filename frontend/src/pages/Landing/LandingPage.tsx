@@ -6,6 +6,7 @@ import { Globe, Phone, MapPin, Mountain, LogIn, ChevronRight, Leaf, Users, BarCh
 import api from '../../services/api';
 import type { CompanySettings, Mine } from '../../types';
 import { useCompanyStore } from '../../store/companyStore';
+import { assetUrl } from '../../utils/assetUrl';
 
 export default function LandingPage() {
   const { t, i18n } = useTranslation();
@@ -37,7 +38,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {company?.logo_url ? (
-              <img src={company.logo_url} alt="logo" className="h-9 w-9 object-contain rounded-xl ring-2 ring-white/20" />
+              <img src={assetUrl(company.logo_url)} alt="logo" className="h-9 w-9 object-contain rounded-xl ring-2 ring-white/20" />
             ) : (
               <div className="h-9 w-9 bg-primary-500/30 rounded-xl flex items-center justify-center ring-2 ring-white/20">
                 <Leaf size={18} className="text-primary-300" />

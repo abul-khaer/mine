@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+
+interface MasterItem { id: number; name: string; }
 import type { Employee, Mine } from '../../types';
 
 const schema = z.object({
@@ -33,6 +35,16 @@ const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracki
 export default function EmployeeForm({ employee, mines, onSuccess, onCancel }: Props) {
   const { t } = useTranslation();
   const isEdit = !!employee;
+
+  const { data: positions = [] } = useQuery<MasterItem[]>({
+    queryKey: ['master-data-select', 'position'],
+    queryFn: () => api.get('/master-data?category=position').then((r) => r.data),
+  });
+
+  const { data: departments = [] } = useQuery<MasterItem[]>({
+    queryKey: ['master-data-select', 'department'],
+    queryFn: () => api.get('/master-data?category=department').then((r) => r.data),
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
@@ -81,13 +93,23 @@ export default function EmployeeForm({ employee, mines, onSuccess, onCancel }: P
 
         <div>
           <label className={labelClass}>{t('employees.position')}</label>
-          <input {...register('position')} className="input-field" placeholder="Engineer, Driver, ..." />
+          <select {...register('position')} className="input-field">
+            <option value="">-- Pilih Jabatan --</option>
+            {positions.map((p) => (
+              <option key={p.id} value={p.name}>{p.name}</option>
+            ))}
+          </select>
           {errors.position && <p className="text-xs text-red-500 mt-1">{errors.position.message}</p>}
         </div>
 
         <div>
           <label className={labelClass}>{t('employees.department')}</label>
-          <input {...register('department')} className="input-field" placeholder="Operasional, HR, ..." />
+          <select {...register('department')} className="input-field">
+            <option value="">-- Pilih Departemen --</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.name}>{d.name}</option>
+            ))}
+          </select>
           {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department.message}</p>}
         </div>
 

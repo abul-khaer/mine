@@ -1,8 +1,13 @@
-import type { Role } from '../types';
-import { useRoleAccessStore } from '../store/roleAccessStore';
+import { create } from 'zustand';
 
-// Static definition kept for reference / seed alignment
-export const menuAccess: Record<string, Role[]> = {
+export interface RoleAccessItem {
+  menu_key: string;
+  role: string;
+  has_access: boolean;
+}
+
+// Static fallback — matches roleAccess.ts defaults
+const DEFAULT_ACCESS: Record<string, string[]> = {
   dashboard:          ['super_admin', 'admin_tambang', 'finance', 'accounting', 'kepala_tambang', 'manager_produksi', 'staff', 'hr', 'manager_hr', 'manager_finance', 'procurement'],
   mines:              ['super_admin', 'admin_tambang', 'kepala_tambang', 'manager_produksi'],
   employees:          ['super_admin', 'admin_tambang', 'hr', 'manager_hr'],
@@ -17,12 +22,23 @@ export const menuAccess: Record<string, Role[]> = {
   role_access:        ['super_admin'],
 };
 
-/**
- * Check if a role has access to a menu.
- * Reads from the dynamic Zustand store (loaded from API on login),
- * which falls back to the static defaults above until the API responds.
- */
-export function canAccess(module: string, role: Role): boolean {
-  const { accessMap } = useRoleAccessStore.getState();
-  return accessMap[module]?.includes(role) ?? false;
+interface RoleAccessStore {
+  accessMap: Record<string, string[]>;
+  loaded: boolean;
+  setFromApi: (items: RoleAccessItem[]) => void;
 }
+
+export const useRoleAccessStore = create<RoleAccessStore>((set) => ({
+  accessMap: DEFAULT_ACCESS,
+  loaded: false,
+  setFromApi: (items: RoleAccessItem[]) => {
+    const map: Record<string, string[]> = {};
+    for (const item of items) {
+      if (item.has_access) {
+        if (!map[item.menu_key]) map[item.menu_key] = [];
+        map[item.menu_key].push(item.role);
+      }
+    }
+    set({ accessMap: map, loaded: true });
+  },
+}));
