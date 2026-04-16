@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(./node_modules/.bin/tailwindcss init:*)",
+      "Bash(node_modules/.bin/tailwindcss init:*)",
+      "Bash(npm run:*)",
+      "Bash(nest new:*)"
+    ]
+  }
+}
