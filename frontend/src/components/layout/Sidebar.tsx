@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useCompanyStore } from '../../store/companyStore';
 import { canAccess } from '../../utils/roleAccess';
+import { assetUrl } from '../../utils/assetUrl';
 import { cn } from '../../utils/cn';
 import type { Role } from '../../types';
 
@@ -47,7 +48,7 @@ export default function Sidebar() {
       <div className="relative flex items-center gap-3 px-5 py-5 border-b border-white/10">
         {settings?.logo_url ? (
           <img
-            src={`${settings.logo_url}?v=${settings.updated_at}`}
+            src={`${assetUrl(settings.logo_url)}?v=${settings.updated_at}`}
             alt="logo"
             className="h-10 w-10 object-contain rounded-xl ring-2 ring-white/20"
           />
