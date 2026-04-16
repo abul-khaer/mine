@@ -9,6 +9,7 @@ import type { CompanySettings } from '../../types';
 import PageHeader from '../../components/common/PageHeader';
 import { useCompanyStore } from '../../store/companyStore';
 import { assetUrl } from '../../utils/assetUrl';
+import MineralTypeManager from './MineralTypeManager';
 
 const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5';
 
@@ -233,6 +234,8 @@ export default function SettingsPage() {
             </button>
           </div>
         </form>
+        {/* Mineral Type Master */}
+        <MineralTypeManager />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { ProductionReport } from './entities/production-report.entity';
 import { FinancialReport } from './entities/financial-report.entity';
 import { ActivityReport } from './entities/activity-report.entity';
 import { IssueReport } from './entities/issue-report.entity';
+import { MineralType } from './entities/mineral-type.entity';
 
 const ds = new DataSource({
   type: 'mysql',
@@ -25,7 +26,8 @@ const ds = new DataSource({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_DATABASE || 'mining_management',
   entities: [User, CompanySettings, Mine, Employee,
-             ProductionReport, FinancialReport, ActivityReport, IssueReport],
+             ProductionReport, FinancialReport, ActivityReport, IssueReport,
+             MineralType],
   synchronize: true,
 });
 
@@ -35,6 +37,7 @@ async function seed() {
 
   const userRepo = ds.getRepository(User);
   const settingsRepo = ds.getRepository(CompanySettings);
+  const mineralRepo = ds.getRepository(MineralType);
 
   // Super Admin
   const exists = await userRepo.findOne({ where: { email: 'admin@mining.com' } });
@@ -63,6 +66,32 @@ async function seed() {
     }));
     console.log('✅ Company settings created');
   }
+
+  // Mineral types default
+  const defaultMinerals = [
+    { name: 'Batubara', description: 'Coal / batu bara' },
+    { name: 'Emas', description: 'Gold / emas' },
+    { name: 'Nikel', description: 'Nickel / nikel' },
+    { name: 'Tembaga', description: 'Copper / tembaga' },
+    { name: 'Bauksit', description: 'Bauxite / bauksit' },
+    { name: 'Besi', description: 'Iron ore / bijih besi' },
+    { name: 'Perak', description: 'Silver / perak' },
+    { name: 'Timah', description: 'Tin / timah' },
+    { name: 'Mangan', description: 'Manganese / mangan' },
+    { name: 'Seng', description: 'Zinc / seng' },
+    { name: 'Granit', description: 'Granite / granit' },
+    { name: 'Pasir Kuarsa', description: 'Quartz sand / pasir kuarsa' },
+  ];
+  let addedMinerals = 0;
+  for (const m of defaultMinerals) {
+    const exists = await mineralRepo.findOne({ where: { name: m.name } });
+    if (!exists) {
+      await mineralRepo.save(mineralRepo.create(m));
+      addedMinerals++;
+    }
+  }
+  if (addedMinerals > 0) console.log(`✅ ${addedMinerals} mineral type(s) added`);
+  else console.log('ℹ️  Mineral types already exist');
 
   await ds.destroy();
   console.log('Done!');

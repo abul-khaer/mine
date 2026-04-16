@@ -11,6 +11,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MineralTypesModule } from './mineral-types/mineral-types.module';
 
 import { CompanySettings } from './entities/company-settings.entity';
 import { Mine } from './entities/mine.entity';
@@ -20,6 +21,7 @@ import { ProductionReport } from './entities/production-report.entity';
 import { FinancialReport } from './entities/financial-report.entity';
 import { ActivityReport } from './entities/activity-report.entity';
 import { IssueReport } from './entities/issue-report.entity';
+import { MineralType } from './entities/mineral-type.entity';
 
 @Module({
   imports: [
@@ -35,7 +37,8 @@ import { IssueReport } from './entities/issue-report.entity';
         password: config.get('DB_PASSWORD', ''),
         database: config.get('DB_DATABASE', 'mining_management'),
         entities: [CompanySettings, Mine, Employee, User,
-                   ProductionReport, FinancialReport, ActivityReport, IssueReport],
+                   ProductionReport, FinancialReport, ActivityReport, IssueReport,
+                   MineralType],
         synchronize: true,
         timezone: '+07:00',
       }),
@@ -54,6 +57,7 @@ import { IssueReport } from './entities/issue-report.entity';
     ReportsModule,
     SettingsModule,
     DashboardModule,
+    MineralTypesModule,
   ],
 })
 export class AppModule {}

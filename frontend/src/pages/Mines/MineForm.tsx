@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import type { Mine } from '../../types';
@@ -13,12 +13,18 @@ const schema = z.object({
   location:     z.string().min(1, 'Lokasi wajib diisi'),
   address:      z.string().min(1, 'Alamat wajib diisi'),
   area:         z.coerce.number().positive('Luas harus lebih dari 0'),
-  mineral_type: z.string().min(1, 'Jenis mineral wajib diisi'),
+  mineral_type: z.string().min(1, 'Jenis mineral wajib dipilih'),
   phone:        z.string().optional(),
   latitude:     z.coerce.number().optional(),
   longitude:    z.coerce.number().optional(),
 });
 type FormData = z.infer<typeof schema>;
+
+interface MineralTypeOption {
+  id: number;
+  name: string;
+  description?: string;
+}
 
 interface Props {
   mine: Mine | null;
@@ -26,9 +32,16 @@ interface Props {
   onCancel: () => void;
 }
 
+const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5';
+
 export default function MineForm({ mine, onSuccess, onCancel }: Props) {
   const { t } = useTranslation();
   const isEdit = !!mine;
+
+  const { data: mineralTypes = [] } = useQuery<MineralTypeOption[]>({
+    queryKey: ['mineral-types'],
+    queryFn: () => api.get('/mineral-types').then((r) => r.data),
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
@@ -59,7 +72,7 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
     placeholder?: string
   ) => (
     <div>
-      <label className="block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5">{label}</label>
+      <label className={labelClass}>{label}</label>
       <input
         {...register(key)}
         type={type}
@@ -76,15 +89,31 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
     <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {field('name', t('mines.name'), 'text', 'Tambang Emas A')}
-        {field('mineral_type', t('mines.mineralType'), 'text', 'Emas, Batubara, ...')}
+
+        {/* Mineral Type Dropdown */}
+        <div>
+          <label className={labelClass}>{t('mines.mineralType')}</label>
+          <select {...register('mineral_type')} className="input-field">
+            <option value="">-- Pilih Jenis Mineral --</option>
+            {mineralTypes.map((m) => (
+              <option key={m.id} value={m.name}>
+                {m.name}
+                {m.description ? ` — ${m.description}` : ''}
+              </option>
+            ))}
+          </select>
+          {errors.mineral_type && (
+            <p className="text-xs text-red-500 mt-1">{errors.mineral_type.message}</p>
+          )}
+        </div>
+
         {field('location', t('mines.location'), 'text', 'Kalimantan Timur')}
         {field('phone', t('mines.phone'), 'tel', '+62...')}
         {field('area', t('mines.area'), 'number', '1000')}
       </div>
+
       <div>
-        <label className="block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5">
-          {t('mines.address')}
-        </label>
+        <label className={labelClass}>{t('mines.address')}</label>
         <textarea
           {...register('address')}
           rows={2}
@@ -95,6 +124,7 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
           <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
         )}
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         {field('latitude', 'Latitude', 'number', '-0.502')}
         {field('longitude', 'Longitude', 'number', '117.153')}
