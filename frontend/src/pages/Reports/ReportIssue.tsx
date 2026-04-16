@@ -16,15 +16,15 @@ interface IssueRow {
 }
 
 const severityColor: Record<string, string> = {
-  low:      'bg-green-100 text-green-700',
-  medium:   'bg-yellow-100 text-yellow-700',
+  low:      'bg-primary-100 text-primary-700',
+  medium:   'bg-earth-100 text-earth-700',
   high:     'bg-orange-100 text-orange-700',
   critical: 'bg-red-100 text-red-700',
 };
 const statusColor: Record<string, string> = {
   open:        'bg-red-100 text-red-700',
-  in_progress: 'bg-yellow-100 text-yellow-700',
-  resolved:    'bg-green-100 text-green-700',
+  in_progress: 'bg-earth-100 text-earth-700',
+  resolved:    'bg-primary-100 text-primary-700',
 };
 
 export default function ReportIssue() {
@@ -94,7 +94,7 @@ export default function ReportIssue() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">Tambang</th>
                 <th className="table-header">Tanggal</th>
@@ -104,29 +104,31 @@ export default function ReportIssue() {
                 <th className="table-header">Resolusi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={7} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={7} className="text-center py-10 text-forest-mid/40">{t('common.loading')}</td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={7} className="text-center py-10 text-forest-mid/40">{t('common.noData')}</td></tr>
               ) : (
                 data?.data.map((row, idx) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell">{row.mine_name}</td>
-                    <td className="table-cell">{row.date}</td>
-                    <td className="table-cell font-medium">{row.issue_title}</td>
+                  <tr key={row.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs">{(page - 1) * 15 + idx + 1}</td>
                     <td className="table-cell">
-                      <span className={`badge ${severityColor[row.severity] ?? 'bg-gray-100'}`}>
+                      <span className="badge bg-earth-100 text-earth-700">{row.mine_name}</span>
+                    </td>
+                    <td className="table-cell text-forest-mid">{row.date}</td>
+                    <td className="table-cell font-semibold text-forest-deep">{row.issue_title}</td>
+                    <td className="table-cell">
+                      <span className={`badge ${severityColor[row.severity] ?? 'bg-cream-200 text-forest-mid'}`}>
                         {row.severity}
                       </span>
                     </td>
                     <td className="table-cell">
-                      <span className={`badge ${statusColor[row.status] ?? 'bg-gray-100'}`}>
+                      <span className={`badge ${statusColor[row.status] ?? 'bg-cream-200 text-forest-mid'}`}>
                         {row.status}
                       </span>
                     </td>
-                    <td className="table-cell text-gray-500 max-w-xs truncate">{row.resolution || '—'}</td>
+                    <td className="table-cell text-forest-mid/60 max-w-xs truncate">{row.resolution || '—'}</td>
                   </tr>
                 ))
               )}

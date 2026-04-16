@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Mountain } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import type { Mine, PaginatedResponse } from '../../types';
@@ -60,13 +60,13 @@ export default function MineList() {
       {/* Search */}
       <div className="card mb-5">
         <div className="relative max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-forest-mid/50" />
           <input
             type="text"
             placeholder={`${t('common.search')} tambang...`}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="input-field pl-9"
+            className="input-field pl-10"
           />
         </div>
       </div>
@@ -76,7 +76,7 @@ export default function MineList() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">{t('mines.name')}</th>
                 <th className="table-header">{t('mines.mineralType')}</th>
@@ -87,49 +87,55 @@ export default function MineList() {
                 {canEdit && <th className="table-header text-center">{t('common.actions')}</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-10 text-gray-400">
-                    {t('common.loading')}
+                  <td colSpan={8} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-2 text-forest-mid/50">
+                      <div className="h-8 w-8 border-3 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+                      <span className="text-sm">{t('common.loading')}</span>
+                    </div>
                   </td>
                 </tr>
               ) : data?.data.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-10 text-gray-400">
-                    {t('common.noData')}
+                  <td colSpan={8} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-2 text-forest-mid/40">
+                      <Mountain size={32} />
+                      <span className="text-sm">{t('common.noData')}</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 data?.data.map((mine, idx) => (
-                  <tr key={mine.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="table-cell text-gray-400">
+                  <tr key={mine.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs font-medium">
                       {(page - 1) * 10 + idx + 1}
                     </td>
-                    <td className="table-cell font-semibold text-gray-900">{mine.name}</td>
+                    <td className="table-cell font-semibold text-forest-deep">{mine.name}</td>
                     <td className="table-cell">
-                      <span className="badge bg-yellow-100 text-yellow-800">{mine.mineral_type}</span>
+                      <span className="badge bg-earth-100 text-earth-700">{mine.mineral_type}</span>
                     </td>
-                    <td className="table-cell text-gray-600">{mine.location}</td>
-                    <td className="table-cell">{mine.area.toLocaleString('id-ID')} Ha</td>
-                    <td className="table-cell text-gray-600">{mine.phone || '—'}</td>
-                    <td className="table-cell font-medium">
+                    <td className="table-cell text-forest-mid">{mine.location}</td>
+                    <td className="table-cell text-forest-mid">{Number(mine.area).toLocaleString('id-ID')} Ha</td>
+                    <td className="table-cell text-forest-mid">{mine.phone || '—'}</td>
+                    <td className="table-cell font-semibold text-forest-deep">
                       {mine.employee_count?.toLocaleString('id-ID') ?? 0}
                     </td>
                     {canEdit && (
                       <td className="table-cell">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => openEdit(mine)}
-                            className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="p-1.5 text-forest-mid hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                           >
-                            <Pencil size={15} />
+                            <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => setDeleteId(mine.id)}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-forest-mid hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           >
-                            <Trash2 size={15} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </td>

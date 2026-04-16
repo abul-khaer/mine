@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Mountain, Users, FileText, Settings,
-  UserCog, ChevronDown, ChevronRight,
+  UserCog, ChevronDown, ChevronRight, Leaf,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
@@ -22,82 +22,89 @@ export default function Sidebar() {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-          isActive
-            ? 'bg-primary-600 text-white'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-        )
+        cn('sidebar-item', isActive && 'sidebar-item-active')
       }
     >
-      {icon}
-      {label}
+      <span className="shrink-0">{icon}</span>
+      <span>{label}</span>
     </NavLink>
   );
 
   const reportLinks = [
-    { to: '/app/reports/employee', key: 'reports_employee', label: t('reports.employee') },
+    { to: '/app/reports/employee',   key: 'reports_employee',   label: t('reports.employee') },
     { to: '/app/reports/production', key: 'reports_production', label: t('reports.production') },
-    { to: '/app/reports/financial', key: 'reports_financial', label: t('reports.financial') },
-    { to: '/app/reports/activity', key: 'reports_activity', label: t('reports.activity') },
-    { to: '/app/reports/issue', key: 'reports_issue', label: t('reports.issue') },
+    { to: '/app/reports/financial',  key: 'reports_financial',  label: t('reports.financial') },
+    { to: '/app/reports/activity',   key: 'reports_activity',   label: t('reports.activity') },
+    { to: '/app/reports/issue',      key: 'reports_issue',      label: t('reports.issue') },
   ].filter((r) => canAccess(r.key, role));
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+    <aside className="w-64 flex flex-col h-full bg-forest-bg">
+      {/* Decorative top gradient */}
+      <div className="absolute top-0 left-0 w-64 h-32 bg-gradient-to-br from-primary-600/20 to-transparent pointer-events-none rounded-tr-3xl" />
+
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-gray-200">
+      <div className="relative flex items-center gap-3 px-5 py-5 border-b border-white/10">
         {settings?.logo_url ? (
-          <img src={settings.logo_url} alt="logo" className="h-9 w-9 object-contain rounded" />
+          <img
+            src={`${settings.logo_url}?v=${settings.updated_at}`}
+            alt="logo"
+            className="h-10 w-10 object-contain rounded-xl ring-2 ring-white/20"
+          />
         ) : (
-          <div className="h-9 w-9 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-            {settings?.company_name?.charAt(0) ?? 'M'}
+          <div className="h-10 w-10 bg-primary-500/30 rounded-xl flex items-center justify-center ring-2 ring-white/20">
+            <Leaf size={20} className="text-primary-300" />
           </div>
         )}
         <div className="min-w-0">
-          <p className="font-semibold text-gray-900 text-sm truncate">
+          <p className="font-bold text-white text-sm truncate leading-tight">
             {settings?.company_name ?? 'Mining System'}
           </p>
-          <p className="text-xs text-gray-500">Management System</p>
+          <p className="text-xs text-primary-300 mt-0.5">Management System</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="relative flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        {/* Label section */}
+        <p className="px-3 pb-2 text-xs font-semibold text-white/30 uppercase tracking-widest">Menu</p>
+
         {canAccess('dashboard', role) &&
-          navItem('/app/dashboard', <LayoutDashboard size={18} />, t('nav.dashboard'))}
+          navItem('/app/dashboard', <LayoutDashboard size={17} />, t('nav.dashboard'))}
 
         {canAccess('mines', role) &&
-          navItem('/app/mines', <Mountain size={18} />, t('nav.mines'))}
+          navItem('/app/mines', <Mountain size={17} />, t('nav.mines'))}
 
         {canAccess('employees', role) &&
-          navItem('/app/employees', <Users size={18} />, t('nav.employees'))}
+          navItem('/app/employees', <Users size={17} />, t('nav.employees'))}
 
         {/* Reports dropdown */}
         {reportLinks.length > 0 && (
           <div>
             <button
               onClick={() => setReportsOpen(!reportsOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              className="sidebar-item w-full justify-between"
             >
               <span className="flex items-center gap-3">
-                <FileText size={18} />
+                <FileText size={17} />
                 {t('nav.reports')}
               </span>
-              {reportsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {reportsOpen
+                ? <ChevronDown size={15} className="text-white/50" />
+                : <ChevronRight size={15} className="text-white/50" />}
             </button>
             {reportsOpen && (
-              <div className="ml-6 mt-1 space-y-1">
+              <div className="ml-5 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
                 {reportLinks.map((r) => (
                   <NavLink
                     key={r.to}
                     to={r.to}
                     className={({ isActive }) =>
                       cn(
-                        'block px-3 py-2 rounded-lg text-sm transition-colors',
+                        'block px-3 py-2 rounded-lg text-xs font-medium transition-all',
                         isActive
-                          ? 'bg-primary-50 text-primary-700 font-medium'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'text-primary-300 bg-white/10'
+                          : 'text-white/50 hover:text-white/80 hover:bg-white/5'
                       )
                     }
                   >
@@ -109,12 +116,34 @@ export default function Sidebar() {
           </div>
         )}
 
+        {/* Divider */}
+        {(canAccess('users', role) || canAccess('settings', role)) && (
+          <div className="pt-3 pb-1">
+            <p className="px-3 pb-2 text-xs font-semibold text-white/30 uppercase tracking-widest">Admin</p>
+          </div>
+        )}
+
         {canAccess('users', role) &&
-          navItem('/app/users', <UserCog size={18} />, t('nav.users'))}
+          navItem('/app/users', <UserCog size={17} />, t('nav.users'))}
 
         {canAccess('settings', role) &&
-          navItem('/app/settings', <Settings size={18} />, t('nav.settings'))}
+          navItem('/app/settings', <Settings size={17} />, t('nav.settings'))}
       </nav>
+
+      {/* User info bottom */}
+      <div className="px-4 py-4 border-t border-white/10">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-xl bg-primary-500/30 flex items-center justify-center shrink-0">
+            <span className="text-sm font-bold text-primary-300">
+              {user?.name?.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-white truncate">{user?.name}</p>
+            <p className="text-xs text-white/40 truncate">{t(`roles.${user?.role}` as any)}</p>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }

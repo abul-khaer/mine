@@ -82,7 +82,7 @@ export default function ReportProduction() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">Tambang</th>
                 <th className="table-header">Tanggal</th>
@@ -93,26 +93,28 @@ export default function ReportProduction() {
                 <th className="table-header">Catatan</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.loading')}</td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.noData')}</td></tr>
               ) : (
                 data?.data.map((row, idx) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell">{row.mine_name}</td>
-                    <td className="table-cell">{row.date}</td>
-                    <td className="table-cell text-right">{row.target_volume.toLocaleString('id-ID')}</td>
-                    <td className="table-cell text-right font-medium">{row.actual_volume.toLocaleString('id-ID')}</td>
-                    <td className="table-cell">{row.unit}</td>
+                  <tr key={row.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs">{(page - 1) * 15 + idx + 1}</td>
+                    <td className="table-cell">
+                      <span className="badge bg-earth-100 text-earth-700">{row.mine_name}</span>
+                    </td>
+                    <td className="table-cell text-forest-mid">{row.date}</td>
+                    <td className="table-cell text-right text-forest-mid">{row.target_volume.toLocaleString('id-ID')}</td>
+                    <td className="table-cell text-right font-semibold text-forest-deep">{row.actual_volume.toLocaleString('id-ID')}</td>
+                    <td className="table-cell text-forest-mid">{row.unit}</td>
                     <td className="table-cell text-right">
-                      <span className={`badge ${parseFloat(row.achievement) >= 100 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      <span className={`badge ${parseFloat(row.achievement) >= 100 ? 'bg-primary-100 text-primary-700' : 'bg-earth-100 text-earth-700'}`}>
                         {row.achievement}%
                       </span>
                     </td>
-                    <td className="table-cell text-gray-500 max-w-xs truncate">{row.notes || '—'}</td>
+                    <td className="table-cell text-forest-mid/60 max-w-xs truncate">{row.notes || '—'}</td>
                   </tr>
                 ))
               )}

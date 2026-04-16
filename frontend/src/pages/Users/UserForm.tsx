@@ -32,6 +32,8 @@ interface Props {
   onCancel: () => void;
 }
 
+const labelClass = 'block text-xs font-semibold text-forest-mid uppercase tracking-wide mb-1.5';
+
 export default function UserForm({ user, mines, onSuccess, onCancel }: Props) {
   const { t } = useTranslation();
   const isEdit = !!user;
@@ -59,19 +61,19 @@ export default function UserForm({ user, mines, onSuccess, onCancel }: Props) {
   return (
     <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('users.name')}</label>
+        <label className={labelClass}>{t('users.name')}</label>
         <input {...register('name')} className="input-field" placeholder="Nama lengkap" />
         {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('users.email')}</label>
+        <label className={labelClass}>{t('users.email')}</label>
         <input {...register('email')} type="email" className="input-field" placeholder="email@perusahaan.com" />
         {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('users.role')}</label>
+        <label className={labelClass}>{t('users.role')}</label>
         <select {...register('role')} className="input-field">
           {ROLES.map((r) => (
             <option key={r} value={r}>{t(`roles.${r}` as any)}</option>
@@ -80,7 +82,7 @@ export default function UserForm({ user, mines, onSuccess, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('users.mine')}</label>
+        <label className={labelClass}>{t('users.mine')}</label>
         <select {...register('mine_id')} className="input-field">
           <option value="">-- Tidak terkait tambang --</option>
           {mines.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -88,14 +90,15 @@ export default function UserForm({ user, mines, onSuccess, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          {t('users.password')} {isEdit && <span className="text-xs text-gray-400">(kosongkan jika tidak diubah)</span>}
+        <label className={labelClass}>
+          {t('users.password')}{' '}
+          {isEdit && <span className="normal-case font-normal text-forest-mid/50">(kosongkan jika tidak diubah)</span>}
         </label>
         <input {...register('password')} type="password" className="input-field" placeholder="••••••••" />
         {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
       </div>
 
-      <div className="flex gap-3 justify-end pt-2">
+      <div className="flex gap-3 justify-end pt-2 border-t border-cream-200">
         <button type="button" onClick={onCancel} className="btn-secondary">{t('common.cancel')}</button>
         <button type="submit" disabled={mutation.isPending} className="btn-primary">
           {mutation.isPending ? t('common.loading') : t('common.save')}

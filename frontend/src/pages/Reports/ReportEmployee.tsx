@@ -35,7 +35,6 @@ export default function ReportEmployee() {
       api.get('/reports/employees', {
         params: { page, limit: 15, mine_id: mineId || undefined, start_date: startDate || undefined, end_date: endDate || undefined },
       }).then((r) => r.data),
-    enabled: true,
     placeholderData: (prev) => prev,
   });
 
@@ -85,7 +84,7 @@ export default function ReportEmployee() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr>
                 <th className="table-header">No</th>
                 <th className="table-header">Tambang</th>
                 <th className="table-header">NIK</th>
@@ -96,23 +95,25 @@ export default function ReportEmployee() {
                 <th className="table-header">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.loading')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.loading')}</td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 text-gray-400">{t('common.noData')}</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-forest-mid/40">{t('common.noData')}</td></tr>
               ) : (
                 data?.data.map((row, idx) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="table-cell text-gray-400">{(page - 1) * 15 + idx + 1}</td>
-                    <td className="table-cell">{row.mine_name}</td>
-                    <td className="table-cell font-mono text-xs">{row.nik}</td>
-                    <td className="table-cell font-medium">{row.name}</td>
-                    <td className="table-cell">{row.position}</td>
-                    <td className="table-cell">{row.department}</td>
-                    <td className="table-cell">{row.hire_date}</td>
+                  <tr key={row.id} className="hover:bg-cream-100/60 transition-colors">
+                    <td className="table-cell text-forest-mid/50 text-xs">{(page - 1) * 15 + idx + 1}</td>
                     <td className="table-cell">
-                      <span className={`badge ${row.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className="badge bg-earth-100 text-earth-700">{row.mine_name}</span>
+                    </td>
+                    <td className="table-cell font-mono text-xs text-forest-mid">{row.nik}</td>
+                    <td className="table-cell font-semibold text-forest-deep">{row.name}</td>
+                    <td className="table-cell text-forest-mid">{row.position}</td>
+                    <td className="table-cell text-forest-mid">{row.department}</td>
+                    <td className="table-cell text-forest-mid">{row.hire_date}</td>
+                    <td className="table-cell">
+                      <span className={`badge ${row.status === 'active' ? 'bg-primary-100 text-primary-700' : 'bg-cream-200 text-forest-mid'}`}>
                         {row.status === 'active' ? t('common.active') : t('common.inactive')}
                       </span>
                     </td>

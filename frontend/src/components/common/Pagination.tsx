@@ -16,10 +16,10 @@ export default function Pagination({ page, totalPages, total, limit, onPageChang
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-      <p className="text-sm text-gray-600">
-        {t('common.page')} <span className="font-medium">{page}</span>{' '}
-        {t('common.of')} <span className="font-medium">{totalPages}</span>
+    <div className="flex items-center justify-between px-5 py-3 border-t border-cream-200 bg-cream-50">
+      <p className="text-xs text-forest-mid">
+        {t('common.page')} <span className="font-semibold text-forest-deep">{page}</span>{' '}
+        {t('common.of')} <span className="font-semibold text-forest-deep">{totalPages}</span>
         {' · '}{from}–{to} {t('common.of')} {total} {t('common.rows')}
       </p>
       <div className="flex gap-1">
@@ -27,13 +27,11 @@ export default function Pagination({ page, totalPages, total, limit, onPageChang
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
           className={cn(
-            'p-1.5 rounded-lg border border-gray-300 transition-colors',
-            page <= 1
-              ? 'opacity-40 cursor-not-allowed'
-              : 'hover:bg-gray-100'
+            'p-1.5 rounded-lg border border-cream-300 transition-colors text-forest-mid',
+            page <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-cream-200 hover:text-forest-deep'
           )}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={15} />
         </button>
         {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
           const p = i + 1;
@@ -42,10 +40,10 @@ export default function Pagination({ page, totalPages, total, limit, onPageChang
               key={p}
               onClick={() => onPageChange(p)}
               className={cn(
-                'w-8 h-8 text-sm rounded-lg border transition-colors',
+                'w-8 h-8 text-xs font-semibold rounded-lg border transition-colors',
                 p === page
                   ? 'bg-primary-600 text-white border-primary-600'
-                  : 'border-gray-300 hover:bg-gray-100'
+                  : 'border-cream-300 text-forest-mid hover:bg-cream-200 hover:text-forest-deep'
               )}
             >
               {p}
@@ -56,13 +54,11 @@ export default function Pagination({ page, totalPages, total, limit, onPageChang
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
           className={cn(
-            'p-1.5 rounded-lg border border-gray-300 transition-colors',
-            page >= totalPages
-              ? 'opacity-40 cursor-not-allowed'
-              : 'hover:bg-gray-100'
+            'p-1.5 rounded-lg border border-cream-300 transition-colors text-forest-mid',
+            page >= totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-cream-200 hover:text-forest-deep'
           )}
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={15} />
         </button>
       </div>
     </div>
