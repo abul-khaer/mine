@@ -15,8 +15,7 @@ const schema = z.object({
   area:         z.coerce.number().positive('Luas harus lebih dari 0'),
   mineral_type: z.string().min(1, 'Jenis mineral wajib dipilih'),
   phone:        z.string().optional(),
-  latitude:     z.coerce.number().optional(),
-  longitude:    z.coerce.number().optional(),
+  coordinates:  z.string().optional(),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -39,8 +38,8 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
   const isEdit = !!mine;
 
   const { data: mineralTypes = [] } = useQuery<MineralTypeOption[]>({
-    queryKey: ['mineral-types'],
-    queryFn: () => api.get('/mineral-types').then((r) => r.data),
+    queryKey: ['master-data-select', 'mineral_type'],
+    queryFn: () => api.get('/master-data?category=mineral_type').then((r) => r.data),
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,9 +48,26 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
   });
 
   useEffect(() => {
-    if (mine) reset(mine);
-    else reset({ name: '', location: '', address: '', area: 0, mineral_type: '', phone: '' });
+    if (mine) {
+      const coordinates = (mine.latitude && mine.longitude)
+        ? `${mine.latitude}, ${mine.longitude}`
+        : '';
+      reset({ ...mine, coordinates } as any);
+    } else {
+      reset({ name: '', location: '', address: '', area: 0, mineral_type: '', phone: '', coordinates: '' });
+    }
   }, [mine, reset]);
+
+  const parseCoordinates = (raw: string | undefined) => {
+    if (!raw?.trim()) return {};
+    const parts = raw.split(',');
+    const lat = parseFloat(parts[0]?.trim());
+    const lng = parseFloat(parts[1]?.trim());
+    return {
+      latitude:  isNaN(lat) ? undefined : lat,
+      longitude: isNaN(lng) ? undefined : lng,
+    };
+  };
 
   const mutation = useMutation({
     mutationFn: (data: unknown) =>
@@ -86,7 +102,12 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
   );
 
   return (
-    <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(({ coordinates, ...rest }) =>
+        mutation.mutate({ ...rest, ...parseCoordinates(coordinates) })
+      )}
+      className="space-y-4"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {field('name', t('mines.name'), 'text', 'Tambang Emas A')}
 
@@ -125,9 +146,16 @@ export default function MineForm({ mine, onSuccess, onCancel }: Props) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {field('latitude', 'Latitude', 'number', '-0.502')}
-        {field('longitude', 'Longitude', 'number', '117.153')}
+      <div>
+        <label className={labelClass}>Koordinat (Google Maps)</label>
+        <input
+          {...register('coordinates')}
+          className="input-field"
+          placeholder="-5.1531805022114945, 119.40575966650356"
+        />
+        <p className="text-xs text-forest-mid/50 mt-1">
+          Paste koordinat dari Google Maps (latitude, longitude)
+        </p>
       </div>
 
       <div className="flex gap-3 justify-end pt-2 border-t border-cream-200">

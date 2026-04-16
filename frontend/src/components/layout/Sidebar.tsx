@@ -2,11 +2,12 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Mountain, Users, FileText, Settings,
-  UserCog, ChevronDown, ChevronRight, Leaf,
+  UserCog, ChevronDown, ChevronRight, Leaf, Database, ShieldCheck,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useCompanyStore } from '../../store/companyStore';
+import { useRoleAccessStore } from '../../store/roleAccessStore';
 import { canAccess } from '../../utils/roleAccess';
 import { assetUrl } from '../../utils/assetUrl';
 import { cn } from '../../utils/cn';
@@ -16,6 +17,8 @@ export default function Sidebar() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const settings = useCompanyStore((s) => s.settings);
+  // Subscribe to accessMap so sidebar re-renders when role access is saved
+  useRoleAccessStore((s) => s.accessMap);
   const role = user?.role as Role;
   const [reportsOpen, setReportsOpen] = useState(false);
 
@@ -79,6 +82,9 @@ export default function Sidebar() {
         {canAccess('employees', role) &&
           navItem('/app/employees', <Users size={17} />, t('nav.employees'))}
 
+        {canAccess('master_data', role) &&
+          navItem('/app/master-data', <Database size={17} />, 'Master Data')}
+
         {/* Reports dropdown */}
         {reportLinks.length > 0 && (
           <div>
@@ -129,6 +135,9 @@ export default function Sidebar() {
 
         {canAccess('settings', role) &&
           navItem('/app/settings', <Settings size={17} />, t('nav.settings'))}
+
+        {canAccess('role_access', role) &&
+          navItem('/app/role-access', <ShieldCheck size={17} />, 'Hak Akses')}
       </nav>
 
       {/* User info bottom */}
