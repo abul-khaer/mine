@@ -61,19 +61,20 @@ export default function UserManagement() {
                 <th className="table-header">{t('users.email')}</th>
                 <th className="table-header">{t('users.role')}</th>
                 <th className="table-header">{t('users.mine')}</th>
+                <th className="table-header">Akses Menu</th>
                 <th className="table-header text-center">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cream-100">
               {isLoading ? (
-                <tr><td colSpan={6} className="text-center py-12">
+                <tr><td colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-forest-mid/50">
                     <div className="h-8 w-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
                     <span className="text-sm">{t('common.loading')}</span>
                   </div>
                 </td></tr>
               ) : data?.data.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-12">
+                <tr><td colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2 text-forest-mid/40">
                     <UserCog size={32} />
                     <span className="text-sm">{t('common.noData')}</span>
@@ -97,6 +98,18 @@ export default function UserManagement() {
                       }
                     </td>
                     <td className="table-cell">
+                      {user.role === 'super_admin' ? (
+                        <span className="badge bg-primary-100 text-primary-700">Semua</span>
+                      ) : (() => {
+                        try {
+                          const menus = JSON.parse(user.menu_access ?? '[]');
+                          return menus.length > 0
+                            ? <span className="badge bg-earth-100 text-earth-700">{menus.length} menu</span>
+                            : <span className="text-forest-mid/40">—</span>;
+                        } catch { return <span className="text-forest-mid/40">—</span>; }
+                      })()}
+                    </td>
+                    <td className="table-cell">
                       <div className="flex items-center justify-center gap-1.5">
                         <button onClick={() => { setEditUser(user); setModalOpen(true); }} className="p-1.5 text-forest-mid hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
                           <Pencil size={14} />
@@ -117,7 +130,7 @@ export default function UserManagement() {
         )}
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editUser ? t('users.edit') : t('users.add')} size="md">
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editUser ? t('users.edit') : t('users.add')} size="lg">
         <UserForm
           user={editUser}
           mines={mines ?? []}

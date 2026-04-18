@@ -23,6 +23,15 @@ export class CompanySettings {
   @Column({ length: 200, nullable: true })
   website: string;
 
+  @Column({ type: 'text', nullable: true })
+  vision: string;
+
+  @Column({ type: 'text', nullable: true })
+  mission: string;
+
+  @Column({ type: 'text', nullable: true })
+  footer_text: string;
+
   @UpdateDateColumn()
   updated_at: Date;
 }

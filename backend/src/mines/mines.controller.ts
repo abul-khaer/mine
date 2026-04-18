@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, Query, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { MinesService, CreateMineDto, UpdateMineDto } from './mines.service';
+import { AuditService } from '../audit/audit.service';
 
 @Controller('mines')
 export class MinesController {
-  constructor(private service: MinesService) {}
+  constructor(
+    private service: MinesService,
+    private auditService: AuditService,
+  ) {}
 
   @Get('public')
   findPublic() {
@@ -29,19 +33,36 @@ export class MinesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() dto: CreateMineDto) {
-    return this.service.create(dto);
+  async create(@Body() dto: CreateMineDto, @Req() req: { user: { sub: number; email: string } }) {
+    const result = await this.service.create(dto);
+    await this.auditService.log({
+      userId: req.user.sub, userEmail: req.user.email,
+      action: 'CREATE', resource: 'mine', resourceId: result.id,
+      details: { name: dto.name, location: dto.location },
+    });
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMineDto) {
-    return this.service.update(id, dto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateMineDto, @Req() req: { user: { sub: number; email: string } }) {
+    const result = await this.service.update(id, dto);
+    await this.auditService.log({
+      userId: req.user.sub, userEmail: req.user.email,
+      action: 'UPDATE', resource: 'mine', resourceId: id,
+      details: { changes: Object.keys(dto) },
+    });
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: { user: { sub: number; email: string } }) {
+    const result = await this.service.remove(id);
+    await this.auditService.log({
+      userId: req.user.sub, userEmail: req.user.email,
+      action: 'DELETE', resource: 'mine', resourceId: id,
+    });
+    return result;
   }
 }
