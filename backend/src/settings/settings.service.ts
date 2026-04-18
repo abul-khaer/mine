@@ -10,6 +10,9 @@ export class UpdateSettingsDto {
   @IsOptional() @IsString() phone?: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() website?: string;
+  @IsOptional() @IsString() vision?: string;
+  @IsOptional() @IsString() mission?: string;
+  @IsOptional() @IsString() footer_text?: string;
 }
 
 @Injectable()

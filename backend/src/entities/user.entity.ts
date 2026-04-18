@@ -36,6 +36,15 @@ export class User {
   @JoinColumn({ name: 'mine_id' })
   mine: Mine;
 
+  @Column({ type: 'text', nullable: true })
+  menu_access: string;
+
+  @Column({ nullable: true, select: false })
+  totp_secret: string;
+
+  @Column({ default: false })
+  totp_enabled: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 }

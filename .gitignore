@@ -14,6 +14,12 @@ backend/.env
 
 # Uploads
 backend/uploads/
+uploads/*.jpg
+uploads/*.png
+uploads/*.jpeg
+uploads/*.gif
+uploads/*.svg
+!uploads/.gitkeep
 
 # Logs
 *.log

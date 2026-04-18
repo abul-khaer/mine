@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Globe, Eye, EyeOff, Leaf, LogIn } from 'lucide-react';
+import { Globe, Eye, EyeOff, Leaf, LogIn, Mountain, ArrowLeft, KeyRound } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
@@ -58,9 +58,9 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen bg-forest-bg flex overflow-hidden">
-      {/* Left panel — decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-16 overflow-hidden">
+    <div className="min-h-screen bg-forest-bg flex flex-col lg:flex-row overflow-hidden">
+      {/* Left panel — decorative (hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 xl:p-16 overflow-hidden">
         {/* Background blobs */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-80 h-80 bg-primary-500/15 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
@@ -79,9 +79,9 @@ export default function LoginPage() {
 
         <div className="relative z-10 text-center max-w-sm">
           <div className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-full px-4 py-1.5 text-xs text-primary-300 font-semibold mb-8 uppercase tracking-wider">
-            <Leaf size={12} /> Mining Management System
+            <Mountain size={12} /> Mining Management System
           </div>
-          <h2 className="text-4xl font-extrabold text-white leading-tight mb-4">
+          <h2 className="text-3xl xl:text-4xl font-extrabold text-white leading-tight mb-4">
             Kelola Tambang<br />
             <span className="text-primary-400">Lebih Efisien</span>
           </h2>
@@ -101,38 +101,40 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 relative">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-12 relative min-h-screen lg:min-h-0">
         {/* Language toggle */}
-        <button
-          onClick={() => i18n.changeLanguage(i18n.language === 'id' ? 'en' : 'id')}
-          className="absolute top-6 right-6 flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/10 transition-all"
-        >
-          <Globe size={13} />
-          {i18n.language === 'id' ? 'EN' : 'ID'}
-        </button>
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+          <button
+            onClick={() => i18n.changeLanguage(i18n.language === 'id' ? 'en' : 'id')}
+            className="flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/10 transition-all"
+          >
+            <Globe size={13} />
+            {i18n.language === 'id' ? 'EN' : 'ID'}
+          </button>
+        </div>
 
         <div className="w-full max-w-sm">
           {/* Logo & title */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 sm:mb-10">
             {company?.logo_url ? (
               <img
                 src={company.logo_url}
                 alt="logo"
-                className="h-16 w-16 object-contain rounded-2xl mx-auto mb-4 ring-2 ring-white/20"
+                className="h-14 w-14 sm:h-16 sm:w-16 object-contain rounded-2xl mx-auto mb-4 ring-2 ring-white/20"
               />
             ) : (
-              <div className="h-16 w-16 bg-primary-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 ring-2 ring-white/20">
-                <Leaf size={30} className="text-primary-300" />
+              <div className="h-14 w-14 sm:h-16 sm:w-16 bg-primary-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 ring-2 ring-white/20">
+                <Leaf size={28} className="text-primary-300" />
               </div>
             )}
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
               {company?.company_name ?? 'Mining Management'}
             </h1>
-            <p className="text-sm text-white/40 mt-1.5">{t('auth.loginSubtitle')}</p>
+            <p className="text-xs sm:text-sm text-white/40 mt-1.5">{t('auth.loginSubtitle')}</p>
           </div>
 
           {/* Card */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
             <form onSubmit={handleSubmit((d) => loginMutation.mutate(d))} className="space-y-5">
               <div>
                 <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
@@ -177,6 +179,14 @@ export default function LoginPage() {
                 {errors.password && (
                   <p className="text-xs text-red-400 mt-1.5">{errors.password.message}</p>
                 )}
+                <button
+                  type="button"
+                  onClick={() => navigate('/reset-password')}
+                  className="flex items-center gap-1 text-xs text-primary-400 hover:text-primary-300 transition-colors mt-2"
+                >
+                  <KeyRound size={11} />
+                  Lupa Password?
+                </button>
               </div>
 
               <button
@@ -192,8 +202,17 @@ export default function LoginPage() {
             </form>
           </div>
 
-          <p className="text-center text-white/30 text-xs mt-8">
-            © {new Date().getFullYear()} {company?.company_name ?? 'Mining Management System'}
+          {/* Beranda button */}
+          <button
+            onClick={() => navigate('/')}
+            className="w-full flex items-center justify-center gap-2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 font-medium py-2.5 rounded-xl transition-all border border-white/10 mt-4 text-sm"
+          >
+            <ArrowLeft size={14} />
+            Kembali ke Beranda
+          </button>
+
+          <p className="text-center text-white/30 text-xs mt-6 sm:mt-8">
+            &copy; {new Date().getFullYear()} {company?.company_name ?? 'Mining Management System'}
           </p>
         </div>
       </div>

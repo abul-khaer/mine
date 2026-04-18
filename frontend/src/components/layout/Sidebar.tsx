@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Mountain, Users, FileText, Settings,
-  UserCog, ChevronDown, ChevronRight, Leaf,
+  UserCog, ChevronDown, ChevronRight, Leaf, X, Database, Shield,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
@@ -11,7 +11,11 @@ import { canAccess } from '../../utils/roleAccess';
 import { cn } from '../../utils/cn';
 import type { Role } from '../../types';
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const settings = useCompanyStore((s) => s.settings);
@@ -21,6 +25,7 @@ export default function Sidebar() {
   const navItem = (to: string, icon: React.ReactNode, label: string) => (
     <NavLink
       to={to}
+      onClick={onClose}
       className={({ isActive }) =>
         cn('sidebar-item', isActive && 'sidebar-item-active')
       }
@@ -56,12 +61,19 @@ export default function Sidebar() {
             <Leaf size={20} className="text-primary-300" />
           </div>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-bold text-white text-sm truncate leading-tight">
             {settings?.company_name ?? 'Mining System'}
           </p>
           <p className="text-xs text-primary-300 mt-0.5">Management System</p>
         </div>
+        {/* Close button - mobile only */}
+        <button
+          onClick={onClose}
+          className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -99,6 +111,7 @@ export default function Sidebar() {
                   <NavLink
                     key={r.to}
                     to={r.to}
+                    onClick={onClose}
                     className={({ isActive }) =>
                       cn(
                         'block px-3 py-2 rounded-lg text-xs font-medium transition-all',
@@ -117,14 +130,20 @@ export default function Sidebar() {
         )}
 
         {/* Divider */}
-        {(canAccess('users', role) || canAccess('settings', role)) && (
+        {(canAccess('users', role) || canAccess('settings', role) || canAccess('master_data', role) || canAccess('audit_logs', role)) && (
           <div className="pt-3 pb-1">
             <p className="px-3 pb-2 text-xs font-semibold text-white/30 uppercase tracking-widest">Admin</p>
           </div>
         )}
 
+        {canAccess('master_data', role) &&
+          navItem('/app/master-data', <Database size={17} />, 'Master Data')}
+
         {canAccess('users', role) &&
           navItem('/app/users', <UserCog size={17} />, t('nav.users'))}
+
+        {canAccess('audit_logs', role) &&
+          navItem('/app/audit-logs', <Shield size={17} />, 'Audit Log')}
 
         {canAccess('settings', role) &&
           navItem('/app/settings', <Settings size={17} />, t('nav.settings'))}

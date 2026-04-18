@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERD - Mining Management System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1E3A2F; color: #2d3a33; min-height: 100vh; }
+
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(30,58,47,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .toolbar h1 { color: #fff; font-size: 16px; font-weight: 700; }
+    .toolbar .subtitle { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 2px; }
+    .btn-group { display: flex; gap: 8px; }
+    .btn {
+      padding: 8px 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn:hover { background: rgba(255,255,255,0.2); }
+    .btn-primary { background: #3a7d3a; border-color: #3a7d3a; }
+    .btn-primary:hover { background: #2e6b2e; }
+
+    .canvas-wrapper {
+      padding-top: 70px; overflow: auto; min-height: 100vh;
+      display: flex; justify-content: center;
+    }
+
+    #erd-canvas {
+      background: #F5F0E8;
+      border-radius: 16px;
+      margin: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    svg { display: block; }
+
+    .entity {
+      cursor: default;
+    }
+    .entity-header {
+      font-weight: 700; font-size: 13px; fill: #fff;
+    }
+    .entity-icon {
+      font-size: 14px;
+    }
+    .field-name { font-size: 11px; fill: #2d3a33; font-family: 'Cascadia Code', 'Fira Code', monospace; }
+    .field-type { font-size: 10px; fill: #7a8a7f; font-family: 'Cascadia Code', 'Fira Code', monospace; }
+    .field-pk { fill: #3a7d3a; font-weight: 700; }
+    .field-fk { fill: #9c6b3c; font-weight: 600; }
+    .badge { font-size: 8px; font-weight: 700; fill: #fff; }
+
+    .rel-line {
+      stroke: #9c6b3c; stroke-width: 2; fill: none;
+      stroke-dasharray: none; opacity: 0.6;
+    }
+    .rel-label {
+      font-size: 9px; fill: #9c6b3c; font-weight: 600;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .watermark {
+      font-size: 11px; fill: #b5ad9e; font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div>
+    <h1>Entity Relationship Diagram</h1>
+    <div class="subtitle">Mining Management System &mdash; 8 Tables</div>
+  </div>
+  <div class="btn-group">
+    <button class="btn" onclick="downloadSVG()">Download SVG</button>
+    <button class="btn btn-primary" onclick="downloadPNG()">Download PNG</button>
+  </div>
+</div>
+
+<div class="canvas-wrapper">
+  <div id="erd-canvas"></div>
+</div>
+
+<script>
+// ── Entity definitions ──
+const entities = [
+  {
+    name: 'mines', icon: '⛏️', color: '#3a7d3a', x: 420, y: 40,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'name', type: 'VARCHAR(200)' },
+      { name: 'location', type: 'VARCHAR(200)' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'area', type: 'DECIMAL' },
+      { name: 'mineral_type', type: 'VARCHAR(100)' },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'latitude', type: 'DECIMAL' },
+      { name: 'longitude', type: 'DECIMAL' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+      { name: 'updated_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'users', icon: '👤', color: '#5b6abf', x: 40, y: 40,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'name', type: 'VARCHAR(200)' },
+      { name: 'email', type: 'VARCHAR(100)', unique: true },
+      { name: 'password', type: 'VARCHAR(255)' },
+      { name: 'role', type: 'ENUM(11 roles)' },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'menu_access', type: 'TEXT/JSON' },
+      { name: 'totp_secret', type: 'VARCHAR(255)' },
+      { name: 'totp_enabled', type: 'BOOLEAN' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'employees', icon: '🧑‍💼', color: '#9c6b3c', x: 40, y: 370,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'name', type: 'VARCHAR(200)' },
+      { name: 'nik', type: 'VARCHAR(50)', unique: true },
+      { name: 'position', type: 'VARCHAR(100)' },
+      { name: 'department', type: 'VARCHAR(100)' },
+      { name: 'hire_date', type: 'DATE' },
+      { name: 'status', type: "ENUM('active','inactive')" },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'email', type: 'VARCHAR(100)' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+      { name: 'updated_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'production_reports', icon: '📊', color: '#2e7d6e', x: 420, y: 370,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'date', type: 'DATE' },
+      { name: 'target_volume', type: 'DECIMAL' },
+      { name: 'actual_volume', type: 'DECIMAL' },
+      { name: 'unit', type: 'VARCHAR(50)' },
+      { name: 'notes', type: 'TEXT' },
+      { name: 'created_by', type: 'INT' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'financial_reports', icon: '💰', color: '#b8860b', x: 800, y: 40,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'date', type: 'DATE' },
+      { name: 'category', type: 'VARCHAR(100)' },
+      { name: 'income', type: 'DECIMAL' },
+      { name: 'expense', type: 'DECIMAL' },
+      { name: 'profit', type: 'DECIMAL' },
+      { name: 'notes', type: 'TEXT' },
+      { name: 'created_by', type: 'INT' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'activity_reports', icon: '📋', color: '#6b5b95', x: 800, y: 370,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'date', type: 'DATE' },
+      { name: 'activity', type: 'VARCHAR(200)' },
+      { name: 'description', type: 'TEXT' },
+      { name: 'pic', type: 'VARCHAR(200)' },
+      { name: 'status', type: "ENUM('planned','ongoing','completed')" },
+      { name: 'created_by', type: 'INT' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'issue_reports', icon: '⚠️', color: '#c0392b', x: 420, y: 680,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'mine_id', type: 'INT', fk: 'mines.id' },
+      { name: 'date', type: 'DATE' },
+      { name: 'issue_title', type: 'VARCHAR(200)' },
+      { name: 'description', type: 'TEXT' },
+      { name: 'severity', type: "ENUM('low'...'critical')" },
+      { name: 'status', type: "ENUM('open'...'resolved')" },
+      { name: 'resolution', type: 'TEXT' },
+      { name: 'created_by', type: 'INT' },
+      { name: 'created_at', type: 'TIMESTAMP' },
+    ]
+  },
+  {
+    name: 'company_settings', icon: '🏢', color: '#34495e', x: 40, y: 700,
+    fields: [
+      { name: 'id', type: 'INT', pk: true },
+      { name: 'company_name', type: 'VARCHAR(200)' },
+      { name: 'logo_url', type: 'VARCHAR(255)' },
+      { name: 'address', type: 'TEXT' },
+      { name: 'phone', type: 'VARCHAR(50)' },
+      { name: 'email', type: 'VARCHAR(100)' },
+      { name: 'website', type: 'VARCHAR(200)' },
+      { name: 'vision', type: 'TEXT' },
+      { name: 'mission', type: 'TEXT' },
+      { name: 'footer_text', type: 'TEXT' },
+      { name: 'updated_at', type: 'TIMESTAMP' },
+    ]
+  },
+];
+
+// ── Relationships ──
+const relationships = [
+  { from: 'users', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'SET NULL' },
+  { from: 'employees', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'CASCADE' },
+  { from: 'production_reports', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'CASCADE' },
+  { from: 'financial_reports', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'CASCADE' },
+  { from: 'activity_reports', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'CASCADE' },
+  { from: 'issue_reports', to: 'mines', fromField: 'mine_id', label: 'N:1', type: 'CASCADE' },
+];
+
+// ── Render ──
+const W = 230, HEADER_H = 36, ROW_H = 22, PAD = 16, RAD = 12;
+const CANVAS_W = 1120, CANVAS_H = 1000;
+
+function getEntityBox(e) {
+  const h = HEADER_H + e.fields.length * ROW_H + 8;
+  return { x: e.x, y: e.y, w: W, h };
+}
+
+function renderSVG() {
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${CANVAS_W}" height="${CANVAS_H}" viewBox="0 0 ${CANVAS_W} ${CANVAS_H}">`;
+
+  // Background
+  svg += `<rect width="${CANVAS_W}" height="${CANVAS_H}" fill="#F5F0E8" rx="16"/>`;
+
+  // Grid dots
+  for (let gx = 20; gx < CANVAS_W; gx += 40) {
+    for (let gy = 20; gy < CANVAS_H; gy += 40) {
+      svg += `<circle cx="${gx}" cy="${gy}" r="0.8" fill="#d4cfc5"/>`;
+    }
+  }
+
+  // Title
+  svg += `<text x="${CANVAS_W/2}" y="985" text-anchor="middle" class="watermark">Mining Management System — Entity Relationship Diagram — ${new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}</text>`;
+
+  // Relationship lines
+  relationships.forEach(rel => {
+    const fromE = entities.find(e => e.name === rel.from);
+    const toE = entities.find(e => e.name === rel.to);
+    if (!fromE || !toE) return;
+    const fb = getEntityBox(fromE);
+    const tb = getEntityBox(toE);
+
+    const fcx = fb.x + fb.w / 2, fcy = fb.y + fb.h / 2;
+    const tcx = tb.x + tb.w / 2, tcy = tb.y + tb.h / 2;
+
+    // Find best connection points
+    let fx, fy, tx, ty;
+    if (Math.abs(fcx - tcx) > Math.abs(fcy - tcy)) {
+      // horizontal connection
+      if (fcx < tcx) { fx = fb.x + fb.w; fy = fcy; tx = tb.x; ty = tcy; }
+      else { fx = fb.x; fy = fcy; tx = tb.x + tb.w; ty = tcy; }
+    } else {
+      // vertical connection
+      if (fcy < tcy) { fx = fcx; fy = fb.y + fb.h; tx = tcx; ty = tb.y; }
+      else { fx = fcx; fy = fb.y; tx = tcx; ty = tb.y + tb.h; }
+    }
+
+    const mx = (fx + tx) / 2, my = (fy + ty) / 2;
+
+    // Curved line
+    if (Math.abs(fx - tx) > Math.abs(fy - ty)) {
+      svg += `<path d="M${fx},${fy} C${mx},${fy} ${mx},${ty} ${tx},${ty}" class="rel-line"/>`;
+    } else {
+      svg += `<path d="M${fx},${fy} C${fx},${my} ${tx},${my} ${tx},${ty}" class="rel-line"/>`;
+    }
+
+    // Diamond at "to" end (1 side)
+    const ds = 6;
+    svg += `<polygon points="${tx},${ty-ds} ${tx+ds},${ty} ${tx},${ty+ds} ${tx-ds},${ty}" fill="#9c6b3c" opacity="0.6"/>`;
+
+    // Crow's foot at "from" end (N side)
+    const angle = Math.atan2(ty - fy, tx - fx);
+    const perpAngle = angle + Math.PI / 2;
+    const footLen = 8;
+    svg += `<line x1="${fx}" y1="${fy}" x2="${fx + Math.cos(perpAngle)*footLen}" y2="${fy + Math.sin(perpAngle)*footLen}" stroke="#9c6b3c" stroke-width="2" opacity="0.6"/>`;
+    svg += `<line x1="${fx}" y1="${fy}" x2="${fx - Math.cos(perpAngle)*footLen}" y2="${fy - Math.sin(perpAngle)*footLen}" stroke="#9c6b3c" stroke-width="2" opacity="0.6"/>`;
+
+    // Label
+    svg += `<text x="${mx}" y="${my - 6}" text-anchor="middle" class="rel-label">${rel.label} (${rel.type})</text>`;
+  });
+
+  // Entities
+  entities.forEach(e => {
+    const b = getEntityBox(e);
+    const { x, y, w, h } = b;
+
+    // Shadow
+    svg += `<rect x="${x+3}" y="${y+3}" width="${w}" height="${h}" rx="${RAD}" fill="rgba(0,0,0,0.08)"/>`;
+
+    // Body
+    svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${RAD}" fill="#fff" stroke="#e0dbd3" stroke-width="1"/>`;
+
+    // Header
+    svg += `<rect x="${x}" y="${y}" width="${w}" height="${HEADER_H}" rx="${RAD}" fill="${e.color}"/>`;
+    svg += `<rect x="${x}" y="${y + HEADER_H - RAD}" width="${w}" height="${RAD}" fill="${e.color}"/>`;
+
+    // Header text
+    svg += `<text x="${x + 12}" y="${y + 23}" class="entity-header">${e.icon}  ${e.name}</text>`;
+
+    // Fields
+    e.fields.forEach((f, i) => {
+      const fy = y + HEADER_H + 6 + i * ROW_H;
+
+      // Zebra stripe
+      if (i % 2 === 0) {
+        svg += `<rect x="${x + 1}" y="${fy - 4}" width="${w - 2}" height="${ROW_H}" fill="rgba(0,0,0,0.02)" ${i === e.fields.length - 1 ? `rx="${RAD}"` : ''}/>`;
+      }
+
+      // PK badge
+      if (f.pk) {
+        svg += `<rect x="${x + 10}" y="${fy - 1}" width="20" height="14" rx="4" fill="#3a7d3a"/>`;
+        svg += `<text x="${x + 20}" y="${fy + 9}" text-anchor="middle" class="badge">PK</text>`;
+      }
+
+      // FK badge
+      if (f.fk) {
+        svg += `<rect x="${x + 10}" y="${fy - 1}" width="18" height="14" rx="4" fill="#9c6b3c"/>`;
+        svg += `<text x="${x + 19}" y="${fy + 9}" text-anchor="middle" class="badge">FK</text>`;
+      }
+
+      const nameX = x + (f.pk || f.fk ? 36 : 12);
+      const nameClass = f.pk ? 'field-name field-pk' : f.fk ? 'field-name field-fk' : 'field-name';
+      svg += `<text x="${nameX}" y="${fy + 10}" class="${nameClass}">${f.name}</text>`;
+      svg += `<text x="${x + w - 10}" y="${fy + 10}" text-anchor="end" class="field-type">${f.type}</text>`;
+
+      // Unique marker
+      if (f.unique) {
+        svg += `<text x="${x + w - 10}" y="${fy + 10}" text-anchor="end" class="field-type" fill="#c0392b">UQ  ${f.type}</text>`;
+      }
+    });
+  });
+
+  svg += `</svg>`;
+  return svg;
+}
+
+// ── Render to page ──
+const canvas = document.getElementById('erd-canvas');
+canvas.innerHTML = renderSVG();
+canvas.style.width = CANVAS_W + 'px';
+canvas.style.height = CANVAS_H + 'px';
+
+// ── Downloads ──
+function downloadSVG() {
+  const svgStr = renderSVG();
+  const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ERD_Mining_Management_System.svg';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function downloadPNG() {
+  const svgStr = renderSVG();
+  const canvas = document.createElement('canvas');
+  const scale = 2; // high-res
+  canvas.width = CANVAS_W * scale;
+  canvas.height = CANVAS_H * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  const img = new Image();
+  const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, CANVAS_W, CANVAS_H);
+    URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'ERD_Mining_Management_System.png';
+    a.click();
+  };
+  img.src = url;
+}
+</script>
+</body>
+</html>

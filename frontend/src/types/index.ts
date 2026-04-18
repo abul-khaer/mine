@@ -19,6 +19,8 @@ export interface User {
   role: Role;
   mine_id?: number;
   mine?: Mine;
+  menu_access?: string;
+  totp_enabled?: boolean;
   created_at: string;
 }
 
@@ -36,6 +38,9 @@ export interface CompanySettings {
   phone: string;
   email?: string;
   website?: string;
+  vision?: string;
+  mission?: string;
+  footer_text?: string;
   updated_at: string;
 }
 
